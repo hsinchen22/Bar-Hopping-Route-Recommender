@@ -30,5 +30,6 @@ Distributed under the Unlicense License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 Hsin Chen - hsinchen@stanford.edu
+
 Project Link: [https://github.com/hsinchen22/RunTini](https://github.com/hsinchen22/RunTini)
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
