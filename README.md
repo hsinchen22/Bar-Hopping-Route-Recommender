@@ -44,39 +44,32 @@ Tired of scrolling bar reviews, trying to plan the perfect night out? Meet RunTi
 
 Our system orchestrates your perfect bar hop with a blend of advanced AI and geographical wizardry:
 
-* [User Query Analysis]() - Your Wish is Our Command:
-<br />
+* [User Query Analysis]() - Your Wish is Our Command:<br />
 You input your desired bar characteristics (e.g., "speakeasy vibe with craft cocktails"). This natural language query is the starting point of our search.
 
-* [Contextual Review Summarization]() - The Vibe Decoder:
-<br />
+* [Contextual Review Summarization]() - The Vibe Decoder:<br />
 We leverage the powerful multimodal model to process and condense extensive user reviews and visual data from Google Maps for numerous bars. This provides nuanced insights into each venue's atmosphere, offerings, and overall experience, going beyond simple ratings.
 
-* [Vector Embedding and Similarity Search]() - Finding Your Tribe:
-<br />
+* [Vector Embedding and Similarity Search]() - Finding Your Tribe:<br />
 The summarized review text for each bar is transformed into high-dimensional vector embeddings, capturing the semantic meaning of the bar descriptions to identify bars with the most semantically similar descriptions.
 
-* [Embedding Adaptation]() - The Hit Rate Hero:
-<br />
+* [Embedding Adaptation]() - The Hit Rate Hero:<br />
 To bridge potential vocabulary gaps between user queries and bar reviews, we employ a linear adapter layer attached to the embedding model. This adapter learns a transformation matrix that fine-tunes the query embeddings, specifically improving the hit rate of relevant bars from 56% to **76%**. This is achieved by better aligning the semantic representation of user intent with the embedded bar descriptions, leading to a higher recall in the initial search.
 
 <div align="center">
-    <img src="images/anc_pos.png" width="400">
+    <img src="images/anc_pos.png" width="500">
 </div>
 
-* [Reranking with Cross-Encoder]() - The Precision Pour:
-<br />
+* [Reranking with Cross-Encoder]() - The Precision Pour:<br />
 The initial set of candidate bars undergoes a reranking stage using a more computationally intensive cross-encoder model which directly compares the user query with each candidate bar's full review summary, predicting a relevance score. This step ensures that the top recommendations are not only semantically similar but also highly pertinent to the specific nuances of your request.
 
-* [Hamiltonian Path Optimization]() - The Route Master:
-<br />
+* [Hamiltonian Path Optimization]() - The Route Master:<br />
 With the top 5 bars selected, we model the bar locations as nodes in a graph and solve the Hamiltonian Path Problem. Our goal is to devise an efficient and enjoyable route that prioritizes a linear progression through different streets, minimizing backtracking and maximizing the exploration of new areas between your chosen bars.
 
-* [Gradio Interface]() - Your Night, Delivered:
-<br />
+* [Gradio Interface]() - Your Night, Delivered:<br />
 Finally, the curated list of 5 bars, along with the optimized bar-hopping route, is presented to you through a user-friendly web interface built with Gradio. This interface allows you to easily view bar details, the suggested route, and embark on your personalized drinking adventure.
 
-<a id="1-2"></a>
+
 ### 🧩 Built With - The Secret Sauce
 
 We've concocted RunTini with a potent blend of these amazing technologies:
