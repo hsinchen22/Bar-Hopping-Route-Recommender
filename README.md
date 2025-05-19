@@ -38,7 +38,7 @@ RunTini redefines nightlife by pairing curated bar experiences with a guided nig
 
 Tired of scrolling bar reviews, trying to plan the perfect night out? Meet RunTini – your nightlife wingman with a runner’s high. We mix curated bar vibes with a 3 to 5 mile night run, turning your night into a drink-fueled adventure. Whether you’re chasing moody whiskey dens, electric cocktail spots, or beer-soaked pubs, we map out five epic stops and the route to hit them all.
 
-**Run. Sip. Repeat.** This isn’t just bar hopping – it’s bar running. Let’s make your night legendary.
+**Run. Sip. Repeat.** This isn’t just bar hopping–it’s bar running. Let’s make your night legendary.
 
 ### ✨ How It Works - The Magic Behind the Crawl
 
@@ -103,6 +103,15 @@ Distributed under the Unlicense License. See LICENSE.txt for more information. T
 
 ## 💬 Contact - Holler At Us
 Have questions, suggestions, or just want to share your favorite bar crawl story? Feel free to reach out!
+
+<b>Hsin Chen</b><br/>
+Email: <a href="mailto:hsinchen@stanford.edu">hsinchen@stanford.edu</a><br/>
+GitHub: <a href="https://github.com/hsinchen22">github.com/hsinchen22</a>
+
+<!-- put yours-->
+
+
+We look forward to assisting you and ensuring your experience with our product is successful and enjoyable!
 
 <br/>
 <a href="#readme-top">Back to top</a>
