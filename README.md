@@ -81,39 +81,28 @@ We've concocted RunTini with a potent blend of these amazing technologies:
 | [![GPT-4](https://img.shields.io/badge/openai--gpt--4-Vector%20Search%20Enhancer-yellow)](https://openai.com/gpt-4)                | Powers the generation of natural-sounding user queries, enhancing our search precision. |
 | [![BGE Reranker](https://img.shields.io/badge/BAAI--bge--reranker--v2--m3-Recommendation%20Refiner-orange)](https://huggingface.co/BAAI/bge-reranker-v2-m3) | The final touch, ensuring only the top-notch recommendations make it to you.     |
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<br />
 
-<a id="2"></a>
 ## 🚀 Getting Started - How to Unleash the Fun
+
 Ready to let RunTini plan your next unforgettable night out? Here's how to get started:
 
-<a id="2-1"></a>
 ### ⚙️ Prerequisites - What You'll Need in Your Toolkit
+
 Before you can embark on your RunTini adventure, make sure you have the following installed:
 
-<a id="2-2"></a>
 ### ⚡ Installation - Setting Up Your Adventure
 Follow these steps to get RunTini up and running:
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<br/>
 
-<a id="3"></a>
 ## 📜 License - Cheers to Open Source
 Distributed under the Unlicense License. See LICENSE.txt for more information. This means you're free to use, modify, and distribute RunTini as you see fit – no strings attached!
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<br/>
 
-<a id="4"></a>
 ## 💬 Contact - Holler At Us
 Have questions, suggestions, or just want to share your favorite bar crawl story? Feel free to reach out!
 
-<div align="center">
-<a href="https://github.com/hsinchen22">
-  <img src="https://github.com/hsinchen22.png" width="80" style="border-radius: 50%; margin: 0 5px;"/>
-</a>
-<a href="https://github.com/??">
-  <img src="https://github.com/??.png" width="380" style="border-radius: 50%; margin: 0 5px;"/>
-</a>
-</div>
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<br/>
+<a href="#readme-top">Back to top</a>
