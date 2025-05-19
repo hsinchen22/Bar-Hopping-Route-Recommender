@@ -22,56 +22,58 @@ RunTini redefines nightlife by pairing curated bar experiences with a guided nig
 </div>
 
 ### Table of Contents
-<ul>
-    <li><a href="#1"><strong>About RunTini - Your Night, Your Route</strong></a></li>
-    <ul>
-        <li><a href="#1-1">How It Works - The Magic Behind the Crawl</a></li>
-        <li><a href="#1-2">Built With - The Secret Sauce</a></li>
-    </ul>
-    <li><a href="#2"><strong>Getting Started - How to Unleash the Fun</strong></a></li>
-    <ul>
-        <li><a href="#2-1">Prerequisites - What You'll Need in Your Toolkit</a></li>
-        <li><a href="#2-2">Installation - Setting Up Your Adventure</a></li>
-    </ul>
-    <li><a href="#3"><strong>License - Cheers to Open Source</strong></a></li>
-    <li><a href="#4"><strong>Contact - Holler At Us</strong></a></li>
-</ul>
 
-<a id="1"></a>
+- [About RunTini - Your Night, Your Route](#-about-runtini---your-night-your-route)
+    - [How It Works - The Magic Behind the Crawl](#-how-it-works---the-magic-behind-the-crawl)
+    - [Built With - The Secret Sauce](#-built-with---the-secret-sauce)
+- [Getting Started - How to Unleash the Fun](#-getting-started---how-to-unleash-the-fun)
+    - [Prerequisites - What You'll Need in Your Toolkit](#️-prerequisites---what-youll-need-in-your-toolkit)
+    - [Installation - Setting Up Your Adventure](#-installation---setting-up-your-adventure)
+- [License - Cheers to Open Source](#-license---cheers-to-open-source)
+- [Contact - Holler At Us](#-contact---holler-at-us)
+
+<br />
+
 ## 🍻 About RunTini - Your Night, Your Route
 
-Tired of scrolling bar reviews, trying to plan the perfect night out? Meet RunTini – your nightlife wingman with a runner’s high. We mix curated bar vibes with a 3–5 mile night run, turning your night into a drink-fueled adventure. Whether you’re chasing moody whiskey dens, electric cocktail spots, or beer-soaked pubs, we map out five epic stops and the route to hit them all.
+Tired of scrolling bar reviews, trying to plan the perfect night out? Meet RunTini – your nightlife wingman with a runner’s high. We mix curated bar vibes with a 3 to 5 mile night run, turning your night into a drink-fueled adventure. Whether you’re chasing moody whiskey dens, electric cocktail spots, or beer-soaked pubs, we map out five epic stops and the route to hit them all.
 
-**Run. Sip. Repeat.** This isn’t just bar-hopping—it’s bar-running. Let’s make your night legendary.
+**Run. Sip. Repeat.** This isn’t just bar hopping – it’s bar running. Let’s make your night legendary.
 
-<a id="1-1"></a>
 ### ✨ How It Works - The Magic Behind the Crawl
 
 Our system orchestrates your perfect bar hop with a blend of advanced AI and geographical wizardry:
 
-* <a>User Query Analysis</a> - Your Wish is Our Command:<br/>
+* [User Query Analysis]() - Your Wish is Our Command:
+<br />
 You input your desired bar characteristics (e.g., "speakeasy vibe with craft cocktails"). This natural language query is the starting point of our search.
 
-* <a>Contextual Review Summarization</a> - The Vibe Decoder: <br />
+* [Contextual Review Summarization]() - The Vibe Decoder:
+<br />
 We leverage the powerful multimodal model to process and condense extensive user reviews and visual data from Google Maps for numerous bars. This provides nuanced insights into each venue's atmosphere, offerings, and overall experience, going beyond simple ratings.
 
-* <a>Vector Embedding and Similarity Search</a> - Finding Your Tribe: <br />
+* [Vector Embedding and Similarity Search]() - Finding Your Tribe:
+<br />
 The summarized review text for each bar is transformed into high-dimensional vector embeddings, capturing the semantic meaning of the bar descriptions to identify bars with the most semantically similar descriptions.
 
-* <a>Embedding Adaptation</a> - The Hit Rate Hero:<br />
+* [Embedding Adaptation]() - The Hit Rate Hero:
+<br />
 To bridge potential vocabulary gaps between user queries and bar reviews, we employ a linear adapter layer attached to the embedding model. This adapter learns a transformation matrix that fine-tunes the query embeddings, specifically improving the hit rate of relevant bars from 56% to **76%**. This is achieved by better aligning the semantic representation of user intent with the embedded bar descriptions, leading to a higher recall in the initial search.
-<div align="center" style="margin-bottom: 20px;">
-    <img src="images/anc_pos.png" width="70%">
+
+<div align="center">
+    <img src="images/anc_pos.png" width="400">
 </div>
 
-
-* <a>Reranking with Cross-Encoder</a> - The Precision Pour:<br />
+* [Reranking with Cross-Encoder]() - The Precision Pour:
+<br />
 The initial set of candidate bars undergoes a reranking stage using a more computationally intensive cross-encoder model which directly compares the user query with each candidate bar's full review summary, predicting a relevance score. This step ensures that the top recommendations are not only semantically similar but also highly pertinent to the specific nuances of your request.
 
-* <a>Hamiltonian Path Optimization</a> - The Route Master:<br />
+* [Hamiltonian Path Optimization]() - The Route Master:
+<br />
 With the top 5 bars selected, we model the bar locations as nodes in a graph and solve the Hamiltonian Path Problem. Our goal is to devise an efficient and enjoyable route that prioritizes a linear progression through different streets, minimizing backtracking and maximizing the exploration of new areas between your chosen bars.
 
-* <a>Gradio Interface</a> - Your Night, Delivered: <br />
+* [Gradio Interface]() - Your Night, Delivered:
+<br />
 Finally, the curated list of 5 bars, along with the optimized bar-hopping route, is presented to you through a user-friendly web interface built with Gradio. This interface allows you to easily view bar details, the suggested route, and embark on your personalized drinking adventure.
 
 <a id="1-2"></a>
