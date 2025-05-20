@@ -20,7 +20,7 @@ class VectorSearch:
         """Load all embeddings from the database."""
         with sqlite3.connect(self.db_path) as conn:
             rows = conn.execute(
-                'SELECT id, name, summary, embedding, address, photo FROM bars'
+                "SELECT id, name, summary, embedding, address, photo FROM bars"
             ).fetchall()
             
         self.ids, self.names, self.summaries, self.embeddings, self.addresses, self.img_urls = [], [], [], [], [], []

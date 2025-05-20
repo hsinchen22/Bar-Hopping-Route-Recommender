@@ -1,11 +1,11 @@
 import torch
+import numpy as np
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from typing import List, Dict, Union
-import numpy as np
 from barhopping.logger import logger
 
 class Reranker:
-    def __init__(self, model_name: str = 'BAAI/bge-reranker-v2-m3', device: str = None):
+    def __init__(self, model_name: str = "BAAI/bge-reranker-v2-m3", device: str = None):
         """Initialize the reranker model.
         
         Args:
@@ -13,8 +13,8 @@ class Reranker:
             device: Device to run the model on (cpu, cuda, mps). If None, uses the default from config.
         """
         self.model_name = model_name
-        self.device = device or ('mps' if torch.backends.mps.is_available() else 
-                               'cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = device or ("mps" if torch.backends.mps.is_available() else 
+                               "cuda" if torch.cuda.is_available() else "cpu")
         
         logger.info(f"Loading reranker model {self.model_name} on device {self.device}")
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
@@ -36,7 +36,7 @@ class Reranker:
             return []
         
         # Prepare input pairs
-        pairs = [(query, f"{candidate['name']}: {candidate['summary']}") for candidate in candidates]
+        pairs = [(query, f"{candidate["name"]}: {candidate["summary"]}") for candidate in candidates]
         
         # Tokenize
         inputs = self.tokenizer(

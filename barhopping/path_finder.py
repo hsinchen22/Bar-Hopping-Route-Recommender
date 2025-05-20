@@ -1,7 +1,7 @@
 import numpy as np
+import sqlite3
 from itertools import combinations
 from typing import List, Tuple, Dict
-import sqlite3
 from barhopping.logger import logger
 
 class PathFinder:
@@ -71,7 +71,7 @@ class PathFinder:
         full_mask = (1 << n_bars) - 1
         candidates = [(dp[(full_mask, k)][0], k) for k in range(n_bars) if (full_mask, k) in dp]
         if not candidates:
-            return float('inf'), []
+            return float("inf"), []
 
         min_dist, u = min(candidates)
 
@@ -105,7 +105,7 @@ class PathFinder:
         # Fill distance matrix
         for i, j in combinations(range(n_bars), 2):
             id1, id2 = bar_ids[i], bar_ids[j]
-            dist = distances.get((id1, id2), float('inf'))
+            dist = distances.get((id1, id2), float("inf"))
             dist_matrix[i][j] = dist_matrix[j][i] = dist
             
         # Find optimal path starting from first bar

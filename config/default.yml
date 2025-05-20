@@ -3,8 +3,6 @@ num_bars: 1
 num_pics: 1
 num_review: 5000
 db_path: ./data/bars_tpe.db
-hf_token: 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
-openai_key: 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
 neg_db: ./neg.db
 bars_db: ./bars_tpe.db
 questions_db: ./bar_questions.db

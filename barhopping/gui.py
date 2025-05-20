@@ -4,7 +4,6 @@ from typing import List, Dict, Any, Tuple
 from barhopping.retriever.vector_search import get_vector_search
 from barhopping.path_finder import PathFinder
 from barhopping.config import BARS_DB
-import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -12,7 +11,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import WebDriverException
 from barhopping.logger import logger
-from PIL import Image
 
 class BarHoppingGUI:
     def __init__(self):
@@ -134,22 +132,22 @@ class BarHoppingGUI:
             optimal_addresses = [addresses[bar_ids.index(id)] for id in optimal_path]
             
             # Open Google Maps
-            url = 'https://www.google.com/maps/dir/'
+            url = "https://www.google.com/maps/dir/"
             self.browser.get(url)
             self.browser.maximize_window()
 
             # Click walking mode - wait for the button to be clickable
             WebDriverWait(self.browser, 10).until(
-                EC.presence_of_element_located((By.CLASS_NAME, 'm6Uuef'))
+                EC.presence_of_element_located((By.CLASS_NAME, "m6Uuef"))
             )
-            travel_btns = self.browser.find_elements(By.CLASS_NAME, 'm6Uuef')
+            travel_btns = self.browser.find_elements(By.CLASS_NAME, "m6Uuef")
             for btn in travel_btns:
-                if btn.get_attribute('data-tooltip') == 'Walking':
+                if btn.get_attribute("data-tooltip") == "Walking":
                     btn.click()
                     break
 
             # Add first two addresses
-            inputs = self.browser.find_elements(By.CLASS_NAME, 'tactile-searchbox-input')
+            inputs = self.browser.find_elements(By.CLASS_NAME, "tactile-searchbox-input")
             inputs[0].send_keys(optimal_addresses[0])
             inputs[1].send_keys(optimal_addresses[1])
             inputs[1].send_keys(Keys.ENTER)
@@ -160,10 +158,10 @@ class BarHoppingGUI:
             for i in range(len(optimal_addresses) - 1):
                 # Add remaining addresses
                 if i > 0:
-                    add_btn = self.browser.find_elements(By.CLASS_NAME, 'fC7rrc')[-1]
+                    add_btn = self.browser.find_elements(By.CLASS_NAME, "fC7rrc")[-1]
                     add_btn.click()
                     await asyncio.sleep(1)
-                    input = self.browser.find_elements(By.CLASS_NAME, 'tactile-searchbox-input')[-1]
+                    input = self.browser.find_elements(By.CLASS_NAME, "tactile-searchbox-input")[-1]
                     input.send_keys(optimal_addresses[i + 1])
                     input.send_keys(Keys.ENTER)
                     await asyncio.sleep(4)
@@ -171,7 +169,7 @@ class BarHoppingGUI:
                 # Get the distance for this segment
                 try:
                     distance_element = WebDriverWait(self.browser, 10).until(
-                        EC.presence_of_element_located((By.CLASS_NAME, 'Fk3sm'))
+                        EC.presence_of_element_located((By.CLASS_NAME, "Fk3sm"))
                     )
                     distance = distance_element.text
                     path_distances.append(distance)
@@ -198,7 +196,7 @@ class BarHoppingGUI:
             bars = await self.get_recommendation(message)
             
             # Get actual bar IDs from the database results
-            bar_ids = [bar['id'] for bar in bars]
+            bar_ids = [bar["id"] for bar in bars]
             
             # Start route generation task
             route_task = asyncio.create_task(self.make_routes(bar_ids))
@@ -206,11 +204,11 @@ class BarHoppingGUI:
             # Display bars with path information
             for i, bar in enumerate(bars):
                 html = self.bar_html(
-                    bar['name'],
-                    bar.get('URL', '#'),
-                    bar['address'],
-                    bar.get('photo', ''),
-                    bar.get('summary', 'No description available')
+                    bar["name"],
+                    bar.get("URL", "#"),
+                    bar["address"],
+                    bar.get("photo", ""),
+                    bar.get("summary", "No description available")
                 )
                 response.append(html)
                 
@@ -284,7 +282,7 @@ class BarHoppingGUI:
                         elem_classes=["chatbox"],
                         placeholder="Let's map out your perfect night — pick a vibe or tell me yours! 🍸✨",
                         bubble_full_width=False,
-                        avatar_images=['./images/user_avatar.png', './images/bot_avatar.png'],
+                        avatar_images=["./images/user_avatar.png", "./images/bot_avatar.png"],
                         show_label=False,
                         type="messages"
                     ),
@@ -297,7 +295,7 @@ class BarHoppingGUI:
                     type="messages"
                 )
                 
-            demo.launch(share=True, debug=True, allowed_paths=["./images/route.png"])
+            demo.launch(share=True, debug=True)
             
         finally:
             # Clean up browser resources
