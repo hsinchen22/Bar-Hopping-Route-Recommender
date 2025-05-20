@@ -188,6 +188,6 @@ class BarHoppingGUI:
                     ],
                     type="messages"
                 )
-            demo.launch(share=True, debug=True)
+            demo.launch(share=True)
         finally:
             self._cleanup_browser()
