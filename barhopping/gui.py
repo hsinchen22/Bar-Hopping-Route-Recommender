@@ -26,9 +26,9 @@ class BarHoppingGUI:
         if self.browser is None:
             try:
                 options = webdriver.ChromeOptions()
-                options.add_argument('--headless')  # Run in headless mode
-                options.add_argument('--no-sandbox')
-                options.add_argument('--disable-dev-shm-usage')
+                options.add_argument("--headless")  # Run in headless mode
+                options.add_argument("--no-sandbox")
+                options.add_argument("--disable-dev-shm-usage")
                 self.browser = webdriver.Chrome(options=options)
                 logger.info("Browser initialized successfully")
             except Exception as e:
@@ -50,10 +50,10 @@ class BarHoppingGUI:
         # Handle missing, protocol-relative, or invalid image URLs
         img_url = None
         if img:
-            if img.startswith(('http://', 'https://')):
+            if img.startswith(("http://", "https://")):
                 img_url = img
-            elif img.startswith('//'):
-                img_url = 'https:' + img
+            elif img.startswith("//"):
+                img_url = "https:" + img
         if img_url:
             img_html = f'<img src="{img_url}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 12px; margin: 10px 0;" />'
         else:
@@ -87,8 +87,8 @@ class BarHoppingGUI:
     def path_html(self, distance: str) -> str:
         """Generate HTML for the path section between bars."""
         # Convert distance to English format if it's in meters
-        if '公尺' in distance:
-            meters = distance.replace('公尺', '').strip()
+        if "公尺" in distance:
+            meters = distance.replace("公尺", "").strip()
             distance = f"{meters} meters"
         elif 'm' in distance.lower() and 'km' not in distance.lower():
             meters = distance.lower().replace('m', '').strip()
@@ -153,7 +153,7 @@ class BarHoppingGUI:
             inputs[0].send_keys(optimal_addresses[0])
             inputs[1].send_keys(optimal_addresses[1])
             inputs[1].send_keys(Keys.ENTER)
-            time.sleep(2)
+            await asyncio.sleep(2)
 
             # Get distances between consecutive bars
             path_distances = []
@@ -162,11 +162,11 @@ class BarHoppingGUI:
                 if i > 0:
                     add_btn = self.browser.find_elements(By.CLASS_NAME, 'fC7rrc')[-1]
                     add_btn.click()
-                    time.sleep(1)
+                    await asyncio.sleep(1)
                     input = self.browser.find_elements(By.CLASS_NAME, 'tactile-searchbox-input')[-1]
                     input.send_keys(optimal_addresses[i + 1])
                     input.send_keys(Keys.ENTER)
-                    time.sleep(4)
+                    await asyncio.sleep(4)
 
                 # Get the distance for this segment
                 try:
@@ -191,7 +191,7 @@ class BarHoppingGUI:
             logger.error(f"Error generating route: {str(e)}")
             raise
         
-    async def bar_recommendation(self, message: str, history: List[Tuple[str, str]]) -> List[str]:
+    async def bar_recommendation(self, message: str, history: List[Tuple[str, str]]):
         """Handle the chat interface for bar recommendations."""
         try:
             response = []
@@ -246,6 +246,11 @@ class BarHoppingGUI:
                 overflow-y: auto !important;
                 padding: 20px;
             }
+            .avatar-container {
+                width: 50px !important;
+                height: 50px !important;
+                border-radius: 50% !important;
+            }
             .gradio-container {
                 height: 100vh;
                 background-color: #0e0e0e !important;
@@ -279,18 +284,20 @@ class BarHoppingGUI:
                         elem_classes=["chatbox"],
                         placeholder="Let's map out your perfect night — pick a vibe or tell me yours! 🍸✨",
                         bubble_full_width=False,
-                        show_label=False
+                        avatar_images=['./images/user_avatar.png', './images/bot_avatar.png'],
+                        show_label=False,
+                        type="messages"
                     ),
                     examples=[
-                        "Cozy bars with dim lighting and jazz music for a relaxed evening 🕯️🎷",
-                        "Trendy rooftop bars with great views and photogenic cocktails 🌃🍹",
-                        "Bars with retro arcade vibes and playful, neon-lit interiors 👾🌈",
-                        "Speakeasy-style spots with hidden entrances and vintage aesthetics🕵️‍♂️🕰️"
+                        "Cozy bars with dim lighting and jazz music for a relaxed evening",
+                        "Trendy rooftop bars with great views and photogenic cocktails",
+                        "Bars with retro arcade vibes and playful, neon-lit interiors",
+                        "Speakeasy-style spots with hidden entrances and vintage aesthetics"
                     ],
                     type="messages"
                 )
                 
-            demo.launch(share=True, debug=True, allowed_paths=['route.png'])
+            demo.launch(share=True, debug=True, allowed_paths=["./images/route.png"])
             
         finally:
             # Clean up browser resources
