@@ -1,7 +1,6 @@
-from dataclasses import dataclass
-from typing import Optional
 import yaml
-import os
+from dataclasses import dataclass, asdict
+from typing import Optional
 from pathlib import Path
 
 @dataclass
@@ -13,50 +12,34 @@ class AdapterConfig:
     learning_rate: float = 0.0001
     warmup_steps: int = 100
     margin: float = 0.5
-    device: str = 'cpu'
-    
+    device: str = "cpu"
+
     num_bars: int = 100
     questions_per_bar: int = 10
-    
+
     eval_k: int = 20
-    model_save_path: str = 'adapter_model.pt'
-    data_dir: str = 'data'
-    
+    model_save_path: str = "adapter_model.pt"
+    data_dir: str = "data"
+
     @classmethod
-    def from_yaml(cls, yaml_path: str) -> 'AdapterConfig':
-        """Load config from YAML file."""
-        with open(yaml_path, 'r') as f:
+    def from_yaml(cls, yaml_path: Path) -> 'AdapterConfig':
+        """Load config from a YAML file."""
+        yaml_path = Path(yaml_path)
+        with yaml_path.open("r") as f:
             config_dict = yaml.safe_load(f)
         return cls(**config_dict)
-    
-    def to_yaml(self, yaml_path: str):
-        """Save config to YAML file."""
-        config_dict = {
-            'input_dim': self.input_dim,
-            'batch_size': self.batch_size,
-            'epochs': self.epochs,
-            'learning_rate': self.learning_rate,
-            'warmup_steps': self.warmup_steps,
-            'margin': self.margin,
-            'device': self.device,
-            'num_bars': self.num_bars,
-            'questions_per_bar': self.questions_per_bar,
-            'eval_k': self.eval_k,
-            'model_save_path': self.model_save_path,
-            'data_dir': self.data_dir
-        }
-        
-        # Create directory if it doesn't exist
-        os.makedirs(os.path.dirname(yaml_path), exist_ok=True)
-        
-        with open(yaml_path, 'w') as f:
-            yaml.dump(config_dict, f, default_flow_style=False)
 
-# Default config
+    def to_yaml(self, yaml_path: Path) -> None:
+        """Save config to a YAML file."""
+        yaml_path = Path(yaml_path)
+        yaml_path.parent.mkdir(parents=True, exist_ok=True)
+        with yaml_path.open('w') as f:
+            yaml.dump(asdict(self), f, default_flow_style=False)
+
 default_config = AdapterConfig()
 
-def get_config(config_path: Optional[str] = None) -> AdapterConfig:
-    """Get config from file or return default."""
-    if config_path and os.path.exists(config_path):
+def get_config(config_path: Optional[Path] = None) -> AdapterConfig:
+    """Load config from file if available; otherwise return default."""
+    if config_path and Path(config_path).exists():
         return AdapterConfig.from_yaml(config_path)
-    return default_config 
+    return default_config

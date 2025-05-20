@@ -1,27 +1,27 @@
-import time, re
+import re
+import time
+from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.actions.wheel_input import ScrollOrigin
-from bs4 import BeautifulSoup
-from barhopping.config import NUM_BARS
-from barhopping.config import NUM_PIC
-from barhopping.config import NUM_REV
+from barhopping.config import MAX_BARS, MAX_PHOTOS, MAX_REVS
 from barhopping.logger import logger
 
 # Single browser instance
-def _init_browser():
-    opts = webdriver.ChromeOptions()
-    opts.add_argument("--headless")
-    opts.add_argument("--no-sandbox")
-    opts.add_argument("--disable-dev-shm-usage")
-    return webdriver.Chrome(options=opts)
+def _init_browser() -> webdriver.Chrome:
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    return webdriver.Chrome(options=options)
 
 browser = _init_browser()
 
-def get_bars(city: str, nums: int = NUM_BARS) -> list[dict]:
+def get_bars(city: str, nums: int = MAX_BARS) -> list[dict]:
     url = f"https://www.google.com/maps/search/bars+in+{city}"
     browser.get(url)
+    
     elems = browser.find_elements(By.CLASS_NAME, "hfpxzc")
     while len(elems) < nums:
         prev = len(elems)
@@ -33,65 +33,90 @@ def get_bars(city: str, nums: int = NUM_BARS) -> list[dict]:
         if len(elems) <= prev:
             break
 
-    html = browser.page_source
-    soup = BeautifulSoup(html, "lxml")
-    bars = soup.find_all("a", class_="hfpxzc")
+    soup = BeautifulSoup(browser.page_source, "lxml")
+    bar_links = soup.find_all("a", class_="hfpxzc")
     ratings = soup.find_all("span", class_="MW4etd")
-    data = []
-    for bar, rate in zip(bars, ratings):
-        data.append({
-            "name": bar["aria-label"],
-            "rating": rate.text,
-            "url": bar["href"]
+
+    bars = []
+    for link, rating in zip(bar_links, ratings):
+        bars.append({
+            "name": link["aria-label"],
+            "rating": rating.text,
+            "url": link["href"]
         })
-    return data
+
+    return bars
 
 
-def get_addr_reviews(url: str, min_char: int = NUM_REV) -> tuple[str, list[str]]:
+def get_addr_reviews(url: str, min_char: int = MAX_REVS) -> tuple[str, list[str]]:
     browser.get(url)
-    time.sleep(1)
-    addr = browser.find_element(By.CLASS_NAME, "Io6YTe").text
-    # open reviews
+
+    try:
+        address = browser.find_element(By.CLASS_NAME, "Io6YTe").text
+    except:
+        address = "Address not found"
+        
+    # Open reviews
     btns = browser.find_elements(By.CLASS_NAME, "hh2c6")
     if len(btns) > 1:
-        btns[1].click(); time.sleep(2)
+        btns[1].click()
+        time.sleep(2)
 
-    reviews, count = [], 0
+    reviews, char_count = [], 0
     elems = browser.find_elements(By.CLASS_NAME, "MyEned")
-    while count < min_char:
-        prev = len(elems)
+
+    while char_count < min_char:
+        prev_len = len(elems)
         ActionChains(browser).scroll_from_origin(
             ScrollOrigin.from_element(elems[-1]), 0, 1000
         ).perform()
         time.sleep(2)
         elems = browser.find_elements(By.CLASS_NAME, "MyEned")
-        for m in browser.find_elements(By.CLASS_NAME, "w8nwRe"):
-            m.click()
+
+        for more_btn in browser.find_elements(By.CLASS_NAME, "w8nwRe"):
+            try:
+                more_btn.click()
+            except Exception:
+                continue
+
         for e in elems[len(reviews):]:
             txt = re.sub(r"\s+", " ", e.text)
             reviews.append(txt)
-            count += len(txt)
-            if count >= min_char:
+            char_count += len(txt)
+            if char_count >= min_char:
                 break
-        if len(elems) == prev:
+
+        if len(elems) == prev_len:
             break
-    return addr, reviews
+
+    return address, reviews
 
 
-def get_photos(url: str, nums: int = NUM_PIC) -> list[str]:
+def get_photos(url: str, nums: int = MAX_PHOTOS) -> list[str]:
     browser.get(url)
+
     try:
-        btn = browser.find_element(By.CLASS_NAME, "Dx2nRe")
-        btn.click(); time.sleep(1)
-        for v in browser.find_elements(By.CLASS_NAME, "hh2c6"):
-            if v.text == "Vibe":
-                v.click(); time.sleep(1)
-        imgs = browser.find_elements(By.CLASS_NAME, "Uf0tqf")
-        urls = []
-        for img in imgs[:nums]:
-            style = img.get_attribute("style")
-            urls.append(style[style.find("http"): -3])
-        return urls
+        browser.find_element(By.CLASS_NAME, "Dx2nRe").click()
+        time.sleep(1)
+
+        # Click on "Vibe" tab if present
+        for btn in browser.find_elements(By.CLASS_NAME, "hh2c6"):
+            if btn.text == "Vibe":
+                btn.click()
+                time.sleep(1)
+                break
+
+        photos = browser.find_elements(By.CLASS_NAME, "Uf0tqf")
+        photo_urls = []
+
+        for photo in photos[:nums]:
+            style = photo.get_attribute("style")
+            start = style.find("http")
+            end = style.rfind(")") if ")" in style else len(style)
+            photo_urls.append(style[start:end].strip("\"')"))
+
+        return photo_urls
+
     except Exception as e:
         logger.error(f"Error getting photos: {e}")
         return []

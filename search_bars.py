@@ -1,59 +1,59 @@
 import sys
 from barhopping.retriever.vector_search import get_vector_search
-from barhopping.embedding.granite import get_embedding
 from barhopping.logger import logger
-import json
 
 def format_result(result: dict, index: int) -> str:
     """Format a single search result for display."""
-    # Get values with defaults for missing fields
-    name = result.get('tag_name', 'Unknown')
-    summary = result.get('summary', 'No summary available')
-    vector_score = result.get('vector_score', 0.0)
-    rerank_score = result.get('rerank_score', 0.0)
-    
-    return f"""
-Result {index + 1}:
-Name: {name}
-Summary: {summary}
-Vector Score: {vector_score:.3f}
-Rerank Score: {rerank_score:.3f}
-"""
+    name = result.get("tag_name", "Unknown")
+    summary = result.get("summary", "No summary available")
+    vector_score = result.get("vector_score", 0.0)
+    rerank_score = result.get("rerank_score", 0.0)
 
-def main():
-    # Initialize vector search
-    vector_search = get_vector_search()
-    
+    return (
+        f"\nResult {index + 1}:\n"
+        f"Name: {name}\n"
+        f"Summary: {summary}\n"
+        f"Vector Score: {vector_score:.3f}\n"
+        f"Rerank Score: {rerank_score:.3f}\n"
+    )
+
+def search_loop(vector_search):
+    """Interactive search loop."""
     print("\nBar Search (type 'quit' to exit)")
     print("Enter your search query:")
     
     while True:
         try:
             query = input("\n> ").strip()
-            if query.lower() == 'quit':
+            if query.lower() == "quit":
+                print("Exiting search.")
                 break
-                
             if not query:
                 continue
                 
-            # Perform search
             results = vector_search.search(query, top_k=5)
-            
             if not results:
                 print("No results found.")
                 continue
                 
-            # Display results
             print(f"\nFound {len(results)} results:")
             for i, result in enumerate(results):
                 print(format_result(result, i))
                 
         except KeyboardInterrupt:
-            print("\nGoodbye!")
+            print("\nInterrupted. Goodbye!")
             break
         except Exception as e:
-            logger.error(f"Error during search: {str(e)}")
-            print(f"An error occurred: {str(e)}")
+            logger.exception("Error during search")
+            print(f"An error occurred: {e}")
+
+def main():
+    try:
+        vector_search = get_vector_search()
+        search_loop(vector_search)
+    except Exception as e:
+        logger.exception("Failed to start vector search")
+        sys.exit(f"Startup error: {e}")
 
 if __name__ == "__main__":
-    main() 
+    main()

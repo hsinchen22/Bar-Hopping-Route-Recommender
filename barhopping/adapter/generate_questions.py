@@ -3,7 +3,7 @@ import os
 import sqlite3
 from tqdm import tqdm
 from openai import OpenAI
-from barhopping.config import BARS_DB, QUESTIONS_DB
+from barhopping.config import BARS_DB, QUERIES_DB
 from barhopping.logger import logger
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -42,7 +42,6 @@ def generate_bar_questions(summary: str, num_questions: int = 20) -> list[str]:
     )
     return json.loads(response.choices[0].message.content)
 
-
 def _ensure_table(cur):
     cur.execute(
         """
@@ -58,10 +57,9 @@ def _ensure_table(cur):
     )
     cur.execute("CREATE INDEX IF NOT EXISTS idx_bq_bar_id ON bar_questions(bar_id);")
 
-
 def save_questions_for_bar(bar_id: int, questions: list[str]):
     """Insert/replace the generated questions for *bar_id* into the DB."""
-    with sqlite3.connect(QUESTIONS_DB) as conn:
+    with sqlite3.connect(QUERIES_DB) as conn:
         cur = conn.cursor()
         _ensure_table(cur)
         cur.execute("DELETE FROM bar_questions WHERE bar_id = ?", (bar_id,))
@@ -70,8 +68,6 @@ def save_questions_for_bar(bar_id: int, questions: list[str]):
             [(bar_id, i + 1, q) for i, q in enumerate(questions)]
         )
         conn.commit()
-
-
 
 def process_first_n(n: int = 100, num_questions: int = 10):
     with sqlite3.connect(BARS_DB) as conn:

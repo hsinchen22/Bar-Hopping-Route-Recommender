@@ -1,49 +1,58 @@
 import torch
-from transformers import AutoProcessor, Gemma3ForConditionalGeneration, AutoModelForCausalLM, AutoTokenizer
+import re
+from transformers import AutoProcessor, Gemma3ForConditionalGeneration
 from barhopping.config import GEMMA_MODEL, HF_TOKEN
 from barhopping.logger import logger
 
-def get_device():
+# Global instances
+_tokenizer = None
+_model = None
+
+def get_device() -> torch.device:
     if torch.backends.mps.is_available():
         logger.info("Using MPS device")
         return torch.device("mps")
-    else:
-        logger.info("Using CPU device")
-        return torch.device("cpu")
+    logger.info("Using CPU device")
+    return torch.device("cpu")
 
-processor = AutoProcessor.from_pretrained(
-    GEMMA_MODEL, use_auth_token=HF_TOKEN
-)
-model = Gemma3ForConditionalGeneration.from_pretrained(
-    GEMMA_MODEL,
-    use_auth_token=HF_TOKEN,
-    torch_dtype=torch.float32
-).eval()
+def get_tokenizer():
+    global _tokenizer
+    if _tokenizer is None:
+        _tokenizer = AutoProcessor.from_pretrained(
+            GEMMA_MODEL,
+            use_auth_token=HF_TOKEN
+        )
+    return _tokenizer
 
-model = model.to(get_device())
+def get_model(device: torch.device):
+    global _model
+    if _model is None:
+        _model = Gemma3ForConditionalGeneration.from_pretrained(
+            GEMMA_MODEL,
+            use_auth_token=HF_TOKEN,
+            torch_dtype=torch.float32
+        ).eval().to(device)
+    return _model
+
+def build_prompt(reviews: list[str], photos: list[str]) -> str:
+    reviews_text = "\n".join(reviews)
+    photos_text = "\n".join(photos) if photos else "No photos available"
+    return (
+        "Based on the following reviews and photos, provide a concise summary of this bar:\n\n"
+        f"Reviews:\n{reviews_text}\n\n"
+        f"Photos:\n{photos_text}\n\nSummary:"
+    )
 
 def summarize_bar(reviews: list[str], photos: list[str]) -> str:
+    """Generate a bar summary based on reviews and photos."""
     try:
         device = get_device()
-        model = AutoModelForCausalLM.from_pretrained("google/gemma-2b-it").to(device)
-        tokenizer = AutoTokenizer.from_pretrained("google/gemma-2b-it")
-        
-        # Prepare input
-        reviews_text = "\n".join(reviews)
-        photos_text = "\n".join(photos) if photos else "No photos available"
-        
-        prompt = f"""Based on the following reviews and photos, provide a concise summary of this bar:
+        tokenizer = get_tokenizer()
+        model = get_model(device)
 
-Reviews:
-{reviews_text}
-
-Photos:
-{photos_text}
-
-Summary:"""
-        
-        # Generate summary
+        prompt = build_prompt(reviews, photos)
         inputs = tokenizer(prompt, return_tensors="pt").to(device)
+
         outputs = model.generate(
             **inputs,
             max_length=512,
@@ -52,8 +61,8 @@ Summary:"""
             do_sample=True
         )
         
-        summary = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        return summary.split("Summary:")[-1].strip()
+        summary = tokenizer.decode(outputs[0], skip_special_tokens=True).split("Summary:")[-1]
+        return re.sub(r"\s+", " ", summary).strip()
         
     except Exception as e:
         logger.error(f"Error in summarize_bar: {e}")

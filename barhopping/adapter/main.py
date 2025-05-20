@@ -1,40 +1,40 @@
 import argparse
+import os
 import torch
+import pandas as pd
+import numpy as np
 from .train import train_linear_adapter
 from .evaluate import evaluate, plot_loss
 from .generate_questions import process_first_n
-from .dataset import TripletDataset
-import pandas as pd
-import numpy as np
+from .config import get_config
 from barhopping.logger import logger
-from .config import AdapterConfig, get_config
 
 def main():
-    parser = argparse.ArgumentParser(description='Bar Hopping Adapter Training and Evaluation')
-    subparsers = parser.add_subparsers(dest='command', help='Command to run')
+    parser = argparse.ArgumentParser(description="Bar Hopping Adapter Training and Evaluation")
+    subparsers = parser.add_subparsers(dest="command", help="Command to run")
 
     # Common argument for config file
-    parser.add_argument('--config', type=str, help='Path to config YAML file')
+    parser.add_argument("--config", type=str, help="Path to config YAML file")
 
     # Train command
-    train_parser = subparsers.add_parser('train', help='Train the adapter model')
-    train_parser.add_argument('--input-dim', type=int, help='Input dimension of embeddings')
-    train_parser.add_argument('--batch-size', type=int, help='Batch size for training')
-    train_parser.add_argument('--epochs', type=int, help='Number of training epochs')
-    train_parser.add_argument('--lr', type=float, help='Learning rate')
-    train_parser.add_argument('--warmup-steps', type=int, help='Number of warmup steps')
-    train_parser.add_argument('--margin', type=float, help='Triplet loss margin')
-    train_parser.add_argument('--device', type=str, help='Device to use (cpu, cuda, mps)')
+    train_parser = subparsers.add_parser("train", help="Train the adapter model")
+    train_parser.add_argument("--input-dim", type=int, help="Input dimension of embeddings")
+    train_parser.add_argument("--batch-size", type=int, help="Batch size for training")
+    train_parser.add_argument("--epochs", type=int, help="Number of training epochs")
+    train_parser.add_argument("--lr", type=float, help="Learning rate")
+    train_parser.add_argument("--warmup-steps", type=int, help="Number of warmup steps")
+    train_parser.add_argument("--margin", type=float, help="Triplet loss margin")
+    train_parser.add_argument("--device", type=str, help="Device to use (cpu, cuda, mps)")
 
     # Generate questions command
-    gen_parser = subparsers.add_parser('generate', help='Generate questions for bars')
-    gen_parser.add_argument('--num-bars', type=int, help='Number of bars to process')
-    gen_parser.add_argument('--questions-per-bar', type=int, help='Questions to generate per bar')
+    gen_parser = subparsers.add_parser("generate", help="Generate questions for bars")
+    gen_parser.add_argument("--num-bars", type=int, help="Number of bars to process")
+    gen_parser.add_argument("--questions-per-bar", type=int, help="Questions to generate per bar")
 
     # Evaluate command
-    eval_parser = subparsers.add_parser('evaluate', help='Evaluate the adapter model')
-    eval_parser.add_argument('--k', type=int, help='Top-k for evaluation')
-    eval_parser.add_argument('--model-path', type=str, help='Path to saved model')
+    eval_parser = subparsers.add_parser("evaluate", help="Evaluate the adapter model")
+    eval_parser.add_argument("--k", type=int, help="Top-k for evaluation")
+    eval_parser.add_argument("--model-path", type=str, help="Path to saved model")
 
     args = parser.parse_args()
     
@@ -42,7 +42,7 @@ def main():
     config = get_config(args.config)
     
     # Override config with command line arguments
-    if args.command == 'train':
+    if args.command == "train":
         if args.input_dim: config.input_dim = args.input_dim
         if args.batch_size: config.batch_size = args.batch_size
         if args.epochs: config.epochs = args.epochs
@@ -52,13 +52,13 @@ def main():
         if args.device: config.device = args.device
         
         logger.info("Starting adapter training...")
+        
+        """
         # Load your data here
-        # df = pd.read_csv(os.path.join(config.data_dir, 'train_data.csv'))
-        # df_negs = pd.read_csv(os.path.join(config.data_dir, 'negative_samples.csv'))
+        df = pd.read_csv(os.path.join(config.data_dir, 'train_data.csv'))
         
         adapter, train_losses, val_losses = train_linear_adapter(
             df=df,
-            df_negs=df_negs,
             input_dim=config.input_dim,
             batch_size=config.batch_size,
             epochs=config.epochs,
@@ -70,11 +70,10 @@ def main():
         
         # Save the model
         torch.save(adapter.state_dict(), config.model_save_path)
-        
-        # Plot training curves
+        logger.info(f"Model saved to {config.model_save_path}")
         plot_loss(train_losses, val_losses)
-        logger.info("Training completed and model saved")
-
+        """
+    
     elif args.command == 'generate':
         if args.num_bars: config.num_bars = args.num_bars
         if args.questions_per_bar: config.questions_per_bar = args.questions_per_bar
@@ -88,14 +87,17 @@ def main():
         if args.model_path: config.model_save_path = args.model_path
         
         logger.info("Evaluating adapter model...")
+        
+        """
         # Load your test data here
-        # test_anchors = np.load(os.path.join(config.data_dir, 'test_anchors.npy'))
-        # test_positives = np.load(os.path.join(config.data_dir, 'test_positives.npy'))
-        # test_ids = np.load(os.path.join(config.data_dir, 'test_ids.npy'))
+        test_anchors = np.load(os.path.join(config.data_dir, 'test_anchors.npy'))
+        test_positives = np.load(os.path.join(config.data_dir, 'test_positives.npy'))
+        test_ids = np.load(os.path.join(config.data_dir, 'test_ids.npy'))
         
         mrr, hits = evaluate(test_anchors, test_positives, test_ids, k=config.eval_k)
         logger.info(f"Evaluation results - MRR: {mrr:.4f}, Hits@{config.eval_k}: {hits:.4f}")
-
+        """
+    
     else:
         parser.print_help()
 

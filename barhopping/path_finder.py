@@ -1,117 +1,142 @@
 import numpy as np
-import sqlite3
+import re
 from itertools import combinations
-from typing import List, Tuple, Dict
+from typing import List, Tuple
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 from barhopping.logger import logger
 
 class PathFinder:
-    def __init__(self, db_path: str):
-        """Initialize the path finder.
+    def __init__(self):
+        self.browser = None
         
-        Args:
-            db_path: Path to the SQLite database containing bar information
-        """
-        self.db_path = db_path
-        
-    def get_bar_addresses(self, bar_ids: List[int]) -> List[str]:
-        """Get addresses for a list of bar IDs."""
+    def _init_browser(self):
+        """Initialize the browser if not already initialized."""
+        if self.browser is None:
+            try:
+                options = webdriver.ChromeOptions()
+                options.add_argument("--headless")  # Run in headless mode
+                options.add_argument("--no-sandbox")
+                options.add_argument("--disable-dev-shm-usage")
+                self.browser = webdriver.Chrome(options=options)
+                logger.info("Browser initialized successfully")
+            except Exception as e:
+                logger.error(f"Failed to initialize browser: {str(e)}")
+                raise
+    
+    def _close_browser(self):
+        """Closes the browser session if open."""
+        if self.browser:
+            try:
+                self.browser.quit()
+                logger.info("Browser closed successfully.")
+            except Exception as e:
+                logger.error(f"Error closing browser: {str(e)}")
+            finally:
+                self.browser = None
+    
+    def _get_distance(self, addr1: str, addr2: str, unit: str="m") -> float:
+        """Fetches walking distance between two addresses using Google Maps."""
         try:
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.cursor()
-                # Get all bars first
-                cursor.execute("SELECT id, name, address FROM bars")
-                all_bars = {row[0]: (row[1], row[2]) for row in cursor.fetchall()}
-                
-                # Map indices to actual bar IDs
-                addresses = []
-                for idx in bar_ids:
-                    if idx in all_bars:
-                        name, addr = all_bars[idx]
-                        addresses.append(f"{name}, {addr}")
-                    else:
-                        logger.warning(f"Bar ID {idx} not found in database")
-                        addresses.append("Unknown Location")
-                        
-                return addresses
+            self._init_browser()
+            self.browser.get("https://www.google.com/maps/dir/")
+
+            # Click walking mode - wait for the button to be clickable
+            WebDriverWait(self.browser, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "m6Uuef"))
+            )
+            travel_btn = self.browser.find_elements(By.CLASS_NAME, "m6Uuef")
+            for btn in travel_btn:
+                if btn.get_attribute("data-tooltip") == "Walking":
+                    btn.click()
+                    break
+
+            # Add two addresses
+            inputs = self.browser.find_elements(By.CLASS_NAME, "tactile-searchbox-input")
+            inputs[0].send_keys(addr1)
+            inputs[1].send_keys(addr2)
+            inputs[1].send_keys(Keys.ENTER)
+
+            # Wait for the distance info to be present
+            WebDriverWait(self.browser, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "ivN21e"))
+            )
+            dist = self.browser.find_element(By.CLASS_NAME, "ivN21e")
+
+            conversion = {'km':1000, 'm':1, 'mile':1609.344, 'ft':0.3048}
+            convert_unit = lambda s: (
+                lambda m: float(m.group(1)) * conversion[m.group(2)] / conversion[unit] if m else 0
+            )(re.match(r'([\d.]+)\s*(mile|ft|km|m)', s))
+
+            return convert_unit(dist.text)
+        
         except Exception as e:
-            logger.error(f"Error getting bar addresses: {str(e)}")
-            return ["Unknown Location"] * len(bar_ids)
-        
-    def hamiltonian_path(self, dist_matrix: np.ndarray, n_bars: int, start: int) -> Tuple[float, List[int]]:
-        """Find the shortest Hamiltonian path starting from a given point.
-        
-        Args:
-            dist_matrix: Distance matrix between bars
-            n_bars: Number of bars
-            start: Index of the starting bar
-            
-        Returns:
-            Tuple of (minimum distance, path)
-        """
-        dp = {}
-        dp[(1 << start, start)] = (0, -1)
+            logger.error(f"Error getting distance between '{addr1}' and '{addr2}': {str(e)}")
+            return float("inf")
 
-        for subset_len in range(2, n_bars + 1):
-            for subset in combinations(range(n_bars), subset_len):
+    def _get_distance_matrix(self, addresses: List[str]) -> np.ndarray:
+        """Builds a symmetric distance matrix between all bar addresses."""
+        n = len(addresses)
+        matrix = np.zeros((n, n))
+
+        for i, j in combinations(range(n), 2):
+            dist = self._get_distance(addresses[i], addresses[j])
+            matrix[i][j] = matrix[j][i] = dist
+            logger.info(f"Distance between {addresses[i]} and {addresses[j]}: {dist} meters")
+
+        return matrix
+        
+    def _hamiltonian_path(self, dist_matrix: np.ndarray, start: int = 0) -> Tuple[List[int], List[float]]:
+        """Computes the shortest Hamiltonian path using dynamic programming."""
+        n = len(dist_matrix)
+        dp = {(1 << start, start): (0, -1)}
+
+        for subset_size in range(2, n + 1):
+            for subset in combinations(range(n), subset_size):
                 if start not in subset:
-                    continue  # ensure start is always included
-                mask = sum(1 << k for k in subset)
-                for k in subset:
-                    prev_mask = mask & ~(1 << k)
-                    res = []
-                    for m in subset:
-                        if m == k:
-                            continue
-                        if (prev_mask, m) in dp:
-                            dist = dp[(prev_mask, m)][0] + dist_matrix[m][k]
-                            res.append((dist, m))
-                    if res:
-                        dp[(mask, k)] = min(res)
+                    continue
+                mask = sum(1 << i for i in subset)
+                for curr in subset:
+                    prev_mask = mask & ~(1 << curr)
+                    candidates = [
+                        (dp[(prev_mask, k)][0] + dist_matrix[k][curr], k)
+                        for k in subset if k != curr and (prev_mask, k) in dp
+                    ]
+                    if candidates:
+                        dp[(mask, curr)] = min(candidates)
 
-        full_mask = (1 << n_bars) - 1
-        candidates = [(dp[(full_mask, k)][0], k) for k in range(n_bars) if (full_mask, k) in dp]
+        full_mask = (1 << n) - 1
+        candidates = [(dp[(full_mask, i)][0], i) for i in range(n) if (full_mask, i) in dp]
         if not candidates:
-            return float("inf"), []
+            logger.error("No valid Hamiltonian path found.")
+            return [], []
 
-        min_dist, u = min(candidates)
+        _, last = min(candidates)
 
-        # Reconstruct path
-        path = [u]
+        # Backtrack to find the optimal path
+        path = [last]
         mask = full_mask
         while True:
-            last = path[-1]
-            _, v = dp[(mask, last)]
-            if v == -1:
+            _, prev = dp.get((mask, last), (None, None))
+            if prev == -1:
                 break
+            path.append(prev)
             mask &= ~(1 << last)
-            path.append(v)
-
+            last = prev
         path.reverse()
-        return min_dist, path
+
+        distances = [dist_matrix[path[i]][path[i + 1]] for i in range(len(path) - 1)]
+        return path, distances
         
-    def find_optimal_path(self, bar_ids: List[int], distances: Dict[Tuple[int, int], float]) -> Tuple[float, List[int]]:
-        """Find the optimal path through a set of bars.
-        
-        Args:
-            bar_ids: List of bar IDs to visit
-            distances: Dictionary mapping (bar_id1, bar_id2) to distance
-            
-        Returns:
-            Tuple of (total distance, list of bar IDs in optimal order)
-        """
-        n_bars = len(bar_ids)
-        dist_matrix = np.zeros((n_bars, n_bars))
-        
-        # Fill distance matrix
-        for i, j in combinations(range(n_bars), 2):
-            id1, id2 = bar_ids[i], bar_ids[j]
-            dist = distances.get((id1, id2), float("inf"))
-            dist_matrix[i][j] = dist_matrix[j][i] = dist
-            
-        # Find optimal path starting from first bar
-        min_dist, path = self.hamiltonian_path(dist_matrix, n_bars, 0)
-        
-        # Convert path indices back to bar IDs
-        path_ids = [bar_ids[i] for i in path]
-        
-        return min_dist, path_ids 
+    def find_optimal_path(self, bar_ids: List[int], addresses: List[str]) -> Tuple[List[int], List[float]]:
+        """Finds the optimal order to visit bars based on walking distance."""
+        try:
+            dist_matrix = self._get_distance_matrix(addresses)
+            path, distances = self._hamiltonian_path(dist_matrix)
+            return path, distances
+        finally:
+            self._close_browser()

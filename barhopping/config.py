@@ -1,22 +1,29 @@
 import os
 import yaml
 
-# Get the project root directory
+# Get project root
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Load configuration from YAML
-with open(os.path.join(PROJECT_ROOT, "config", "default.yml"), "r") as f:
+# Load YAML config
+CONFIG_PATH = os.path.join(PROJECT_ROOT, "config", "default.yml")
+with open(CONFIG_PATH, "r") as f:
     config = yaml.safe_load(f)
 
+# Core settings
 CITY = config["city"]
-NUM_BARS = config["num_bars"]
-NUM_PIC = config["num_pics"]
-NUM_REV = config["num_review"]
-DB_PATH = config["db_path"]
+MAX_BARS = config["max_bars"]
+MAX_PHOTOS = config["max_photos"]
+MAX_REVS = config["max_reviews"]
+TOP_K = config["top_k"]
+
+# Database paths
+BARS_DB = config["bars_db"]
+QUERIES_DB = config["queries_db"]
+
+# Model settings
+GEMMA_MODEL = config["gemma_model"]
+GRANITE_MODEL = config["granite_model"]
+
+# API keys
 HF_TOKEN = os.getenv("HF_TOKEN", config["hf_token"])
 OPENAI_KEY = os.getenv("OPENAI_KEY", config["openai_key"])
-BARS_DB = os.path.join(PROJECT_ROOT, "bars_tpe.db")
-QUESTIONS_DB = config["questions_db"]
-NEG_DB = config["neg_db"]
-GEMMA_MODEL = config["gemma_model"]
-GRANITE_MODEL = config.get("granite_model", "ibm-granite/granite-embedding-125m-english")

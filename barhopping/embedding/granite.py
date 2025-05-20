@@ -1,4 +1,5 @@
-import torch, os
+import os
+import torch
 from torch import nn
 from transformers import AutoTokenizer, AutoModel
 from barhopping.config import GRANITE_MODEL
@@ -7,25 +8,28 @@ tokenizer = AutoTokenizer.from_pretrained(GRANITE_MODEL)
 model_em = AutoModel.from_pretrained(GRANITE_MODEL).eval()
 
 # Adapter setup
-ADAPTER_PATH = os.path.join(os.path.dirname(__file__), "../../adapter/adapter_model.pth")
-ADAPTER_PATH = os.path.abspath(ADAPTER_PATH)
+ADAPTER_PATH = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "../../adapter/adapter_model.pth")
+)
 
 class LinearAdapter(nn.Module):
-    def __init__(self, dim):
+    def __init__(self, dim: int):
         super().__init__()
         self.linear = nn.Linear(dim, dim)
-    def forward(self, x):
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.linear(x)
 
+# Load adapter if available
 adapter = None
-# Try to load adapter if available
 with torch.no_grad():
     try:
-        # Get hidden size from model config
         hidden_size = model_em.config.hidden_size
         adapter = LinearAdapter(hidden_size)
+
         if os.path.exists(ADAPTER_PATH):
-            adapter.load_state_dict(torch.load(ADAPTER_PATH, map_location="cpu"))
+            state_dict = torch.load(ADAPTER_PATH, map_location="cpu")
+            adapter.load_state_dict(state_dict)
             adapter.eval()
         else:
             adapter = None
@@ -34,9 +38,10 @@ with torch.no_grad():
         adapter = None
 
 def get_embedding(text: str) -> torch.Tensor:
-    inp = tokenizer(text, padding=True, truncation=True, return_tensors="pt")
+    inputs = tokenizer(text, padding=True, truncation=True, return_tensors="pt")
     with torch.no_grad():
-        out = model_em(**inp)[0][:, 0]
+        cls_embedding = model_em(**inputs)[0][:, 0]  # CLS token
         if adapter is not None:
-            out = adapter(out)
-    return torch.nn.functional.normalize(out, dim=1)
+            cls_embedding = adapter(cls_embedding)
+        normalized = torch.nn.functional.normalize(cls_embedding, dim=1)
+    return normalized
