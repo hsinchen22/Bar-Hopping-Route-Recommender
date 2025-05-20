@@ -3,6 +3,8 @@ num_bars: 1
 num_pics: 1
 num_review: 5000
 db_path: ./data/bars_tpe.db
+hf_token: "your_huggingface_token"
+openai_key: "your_openai_key"
 neg_db: ./neg.db
 bars_db: ./bars_tpe.db
 questions_db: ./bar_questions.db
