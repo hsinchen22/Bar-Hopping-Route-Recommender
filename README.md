@@ -21,8 +21,11 @@ RunTini redefines nightlife by pairing curated bar experiences with a guided nig
 <img src="https://img.shields.io/badge/-HuggingFace-FDEE21?logo=HuggingFace&logoColor=black" height="20"/>
 </div>
 
-<br />
+---
+
 <img src="images/demo.gif" width="100%">
+
+---
 
 ### Table of Contents
 
