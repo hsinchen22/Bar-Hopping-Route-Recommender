@@ -110,7 +110,7 @@ Distributed under the Unlicense License. See LICENSE.txt for more information. T
 ## 💬 Contact - Holler At Us
 Have questions, suggestions, or just want to share your favorite bar crawl story? Feel free to reach out!
 
-<b>Hsin Chen</b><br/>
+<b>Newton Chen</b><br/>
 Email: <a href="mailto:hsinchen@stanford.edu">hsinchen@stanford.edu</a><br/>
 GitHub: <a href="https://github.com/hsinchen22">github.com/hsinchen22</a>
 
