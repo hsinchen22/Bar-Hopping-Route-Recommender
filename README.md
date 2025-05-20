@@ -114,7 +114,9 @@ Have questions, suggestions, or just want to share your favorite bar crawl story
 Email: <a href="mailto:hsinchen@stanford.edu">hsinchen@stanford.edu</a><br/>
 GitHub: <a href="https://github.com/hsinchen22">github.com/hsinchen22</a>
 
-<!-- put yours-->
+<b>Justin Yu</b><br/>
+Email: <a href="mailto:??">??</a><br/>
+GitHub: <a href="https://github.com/justinyuyu">github.com/justinyuyu</a>
 
 
 We look forward to assisting you and ensuring your experience with our product is successful and enjoyable!
