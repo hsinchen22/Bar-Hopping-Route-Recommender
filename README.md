@@ -115,7 +115,7 @@ Email: <a href="mailto:hsinchen@stanford.edu">hsinchen@stanford.edu</a><br/>
 GitHub: <a href="https://github.com/hsinchen22">github.com/hsinchen22</a>
 
 <b>Justin Yu</b><br/>
-Email: <a href="mailto:??">??</a><br/>
+Email: <a href="mailto:tiy035@ucsd.edu??">tiy035@ucsd.edu</a><br/>
 GitHub: <a href="https://github.com/justinyuyu">github.com/justinyuyu</a>
 
 
