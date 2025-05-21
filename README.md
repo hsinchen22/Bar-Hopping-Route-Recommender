@@ -118,17 +118,18 @@ Start the main app and access the Gradio interface in your browser:
 ```
 python main.py
 ```
-Gradio will output a local URL (e.g., `http://127.0.0.1:7860`) and a public URL. Open either one in your browser to start using RunTini.
+> [!NOTE]
+> Gradio will output a local URL (e.g., `http://127.0.0.1:7860`) and a public URL. Open either one to start.
 
 ### 🌎 (Optional) DIY - Local Flavor, Global Fun
 
-> [!IMPORTANT]
-> Before running the dataset builder, open `config/default.yml` and input your **City**, **Hugging Face token** and **OpenAI API key** in the appropriate fields.
-
-Then run:
+Want RunTini to work in Seoul, NYC, or your own backyard? Build your dataset:
 ```
 python summary.py
 ```
+
+> [!IMPORTANT]
+> Before running the dataset builder, open `config/default.yml` and input your **City**, **Hugging Face token** and **OpenAI API key** in the appropriate fields.
 
 **You're all set! Let RunTini craft your perfect night out — cheers to bar-hopping made smart. 🍻**
 
