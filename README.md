@@ -99,7 +99,6 @@ Plan the perfect night out with RunTini — your AI-powered bar-hopping assistan
 Make sure the following are installed on your system:
 
 - **Python 3.8+**
-- **pip** (Python package installer)
 - **Google Chrome** browser
 - **ChromeDriver** (ensure it matches your Chrome version)
 - *Optional but recommended*: a virtual environment like `venv` or `conda`
@@ -130,8 +129,9 @@ python summary.py
 
 > [!IMPORTANT]
 > Before running the dataset builder, open `config/default.yml` and input your **City**, **Hugging Face token** and **OpenAI API key** in the appropriate fields.
+<br/>
 
-**You're all set! Let RunTini craft your perfect night out — cheers to bar-hopping made smart. 🍻**
+**🎉🎉🎉You're all set! Let RunTini craft your perfect night out — 🍻 cheers to bar-hopping made smart.**
 
 <br/>
 
